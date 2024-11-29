@@ -1,44 +1,20 @@
-import pandas as pd
 import matplotlib.pyplot as plt
+import pandas as pd
 
-file_path = 'titanic.parquet'
+df = pd.read_parquet('titanic.parquet') #читаем parquet
+df.to_csv('titanic.csv', index=False) #переделываем его в csv
 
+df = pd.read_csv('titanic.csv') #читаем csv файл
+#переделываем наши данные в таблицу
+survival_counts = df.groupby(['Pclass', 'Survived']).size().unstack(fill_value=0)
 
-df = pd.read_parquet(file_path)# чтение файла
+#строим гистограмму с объединыннеми столбцами
+survival_counts.plot(kind='bar', stacked=True)
 
-
-print(df.head())# выводим первые строки набора данных, чтобы увидеть его структуру
-
-
-csv_output_path = 'titanic.csv'# сохранение данных в формате csv
-df.to_csv(csv_output_path, index=False, encoding='utf-8')
-print(f'Файл сохранен как: {csv_output_path}')
-
-csv_file_path = 'titanic.csv'
-
-
-df = pd.read_csv(csv_file_path)# чтение данных из файла csv
-
-
-survival_counts = df.groupby(['Pclass', 'Survived']).size().unstack(fill_value=0)# группируем данные по классу билета и считаем количество выживших и не выживших
-
-
-survival_percentage = survival_counts.div(survival_counts.sum(axis=1), axis=0) * 100# вычисляем проценты выживания для каждого класса
-
-
-survival_percentage.plot(kind='bar', stacked=True, color=['lightcoral', 'lightgreen'],# создаем гистограмму
-                     figsize=(10, 6))
-
-
-plt.title('Выживаемость пассажиров Титаника')# настраиваем заголовок и метки
-plt.xlabel('Класс билета')
-plt.xticks(rotation=0)
-plt.legend(['Не выжили', 'Выжили'])
-
-
-plt.gca().yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:.0f}%'))# настройка оси Y на проценты
-plt.ylim(0, 100)
-
-
-plt.tight_layout()# отображаем гистограмму
+plt.title('Выживаемость пассажиров Титаника') 
+plt.xlabel('Класс билета') 
+plt.ylabel('Количество пассажиров') 
+plt.xticks(rotation=0)# повернем значения классов билетов
+plt.legend(['Не выжил', 'Выжил']) #легенда карты
+plt.tight_layout()
 plt.show()
